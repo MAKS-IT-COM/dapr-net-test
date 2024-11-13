@@ -1,0 +1,39 @@
+services:
+
+  publisher-dapr:
+    container_name: publisher-dapr
+    image: "daprio/daprd:edge"
+
+  publisher:
+    container_name: publisher
+    image: ${DOCKER_REGISTRY-}publisher
+    build:
+      context: .
+      dockerfile: Publisher/Dockerfile
+
+  subscriber-dapr:
+    container_name: subscriber-dapr
+    image: "daprio/daprd:edge"
+
+  subscriber:
+    container_name: subscriber
+    image: ${DOCKER_REGISTRY-}subscriber
+    build:
+      context: .
+      dockerfile: Subscriber/Dockerfile
+
+  placement:
+    container_name: placement
+    image: "daprio/dapr"
+
+  zipkin:
+    container_name: zipkin
+    image: openzipkin/zipkin
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3.12.1-management-alpine
+
+  redis:
+    container_name: redis
+    image: redis:alpine

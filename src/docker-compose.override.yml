@@ -1,0 +1,108 @@
+
+
+networks:
+  hello-dapr:
+    driver: "bridge"
+
+x-daprd-common: &daprd-common
+  image: "daprio/daprd:edge"
+  volumes:
+    - "./docker-compose/dapr/components/:/components" # Mount our components folder for the runtime to use. The mounted location must match the --resources-path argument.
+    - "./docker-compose/dapr/configuration/:/configuration" # Mount our configuration folder for the runtime to use. The mounted location must match the --config", "/configuration/config.yaml.
+
+services:
+  publisher-dapr:
+    <<: *daprd-common
+    command: [
+      "./daprd",
+      "--app-id", "publisher",
+      "--app-port", "5000",
+      # "--enable-api-logging",
+      # "--log-level", "debug",
+      "--placement-host-address", "placement:50006", # Dapr's placement service can be reach via the docker DNS entry
+      "--config", "/configuration/config.yaml",
+      "--resources-path","./components",
+      "--components-path", "/components"
+    ]
+    depends_on:
+      - placement
+      - publisher
+    network_mode: "service:publisher" # Attach the publisher-dapr service to the publisher network namespace
+
+  publisher:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=5000
+    ports:
+      - "5000:5000"
+    networks:
+        - hello-dapr
+
+  subscriber-dapr:
+    <<: *daprd-common
+    command: [
+      "./daprd",
+      "--app-id", "subscriber",
+      "--app-port", "5000",
+      # "--enable-api-logging",
+      # "--log-level", "debug",
+      "--placement-host-address", "placement:50006", # Dapr's placement service can be reach via the docker DNS entry
+      "--config", "/configuration/config.yaml",
+      "--resources-path","./components",
+      "--components-path", "/components"
+    ]
+    depends_on:
+      - placement
+      - subscriber
+    network_mode: "service:subscriber" # Attach the subscriber-dapr service to the subscriber network namespace
+
+  subscriber:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=5000
+    ports:
+      - "5000"
+    networks:
+        - hello-dapr
+
+
+  placement:
+    command: [
+      "./placement",
+      "--port", "50006",
+      #"--log-level", "debug"
+    ]
+    depends_on:
+      - rabbitmq
+      - redis
+      - zipkin
+    ports:
+      - "50006:50006"
+    networks:
+      - hello-dapr
+
+  zipkin:
+    ports:
+      - "9411:9411"
+    networks:
+      - hello-dapr
+
+  rabbitmq:
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: password
+      RABBITMQ_DEFAULT_VHOST: /
+    ports:        
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - ./docker-compose/rabbitmq/lib:/var/lib/rabbitmq/
+      - ./docker-compose/rabbitmq/log:/var/log/rabbitmq/
+    networks:
+      - hello-dapr
+
+  redis:
+    ports:
+      - "6380:6379"
+    networks:
+      - hello-dapr

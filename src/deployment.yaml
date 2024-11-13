@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: publisher
+  namespace: dapr-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: publisher
+  template:
+    metadata:
+      labels:
+        app: publisher
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "publisher"
+        dapr.io/app-port: "3000"
+    spec:
+      containers:
+      - name: publisher
+        image: daprio/quickstart-pubsub-publisher
+        ports:
+        - containerPort: 3000
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: subscriber
+  namespace: dapr-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: subscriber
+  template:
+    metadata:
+      labels:
+        app: subscriber
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "subscriber"
+        dapr.io/app-port: "3001"
+    spec:
+      containers:
+      - name: subscriber
+        image: daprio/quickstart-pubsub-subscriber
+        ports:
+        - containerPort: 3001
+        env:
+        - name: PUBSUB_TOPIC
+          value: "pubsub"  # The topic used by pubsub component
+        - name: STATE_STORE
+          value: "statestore"  # The name of your statestore component
