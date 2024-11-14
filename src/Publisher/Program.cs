@@ -10,6 +10,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.RegisterPublisher();
+builder.Services.RegisterStateStore();
 
 var app = builder.Build();
 
