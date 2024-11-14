@@ -10,7 +10,7 @@ spec:
   - name: redisHost
     value: redis:6379
   - name: keyPrefix
-    value: none  # Disables prefixing
+    value: none
 
 ---
 
