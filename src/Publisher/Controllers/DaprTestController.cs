@@ -1,7 +1,7 @@
 using Core;
 using Core.Commands;
 using Core.StateEntities;
-using MaksIT.Core.Dapr;
+using MaksIT.Dapr;
 using MaksIT.Core.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Publisher.Models;

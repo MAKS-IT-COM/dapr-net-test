@@ -1,4 +1,4 @@
-using MaksIT.Core.Dapr.Extensions;
+using MaksIT.Dapr.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
