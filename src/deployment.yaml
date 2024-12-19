@@ -1,3 +1,98 @@
+# RabbitMQ
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+  namespace: dapr-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+      - name: rabbitmq
+        image: rabbitmq:3-management
+        ports:
+        - containerPort: 5672 # RabbitMQ port
+        - containerPort: 15672 # RabbitMQ management port
+        env:
+        - name: RABBITMQ_DEFAULT_USER
+          value: admin
+        - name: RABBITMQ_DEFAULT_PASS
+          value: password
+        - name: RABBITMQ_DEFAULT_VHOST
+          value: "/"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-service
+  namespace: dapr-test
+spec:
+  selector:
+    app: rabbitmq
+  ports:
+  - name: amqp
+    protocol: TCP
+    port: 5672
+    targetPort: 5672
+  - name: management
+    protocol: TCP
+    port: 15672
+    targetPort: 15672
+
+---
+
+# Redis
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: dapr-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:6.2.6
+        ports:
+        - containerPort: 6379
+  
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+  namespace: dapr-test
+spec:
+  selector:
+    app: redis
+  ports:
+  - protocol: TCP
+    port: 6379
+    targetPort: 6379
+
+---
+
+# Publisher App
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -22,6 +117,11 @@ spec:
           image: cr.maks-it.com/dapr-test/subscriber:latest
           ports:
             - containerPort: 5000  # Match your internal app port
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+            - name: ASPNETCORE_HTTP_PORTS
+              value: 5000
 
 ---
 
@@ -39,6 +139,8 @@ spec:
       targetPort: 5000  # Match the internal port of the publisher service
 
 ---
+
+# Subscriber App
 
 apiVersion: apps/v1
 kind: Deployment
@@ -64,3 +166,82 @@ spec:
           image: cr.maks-it.com/dapr-test/subscriber:latest
           ports:
             - containerPort: 5000  # Match the internal port of the subscriber service
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+            - name: ASPNETCORE_HTTP_PORTS
+              value: 5000
+
+---
+
+# Dapr PubSub
+
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: pubsub
+  namespace: dapr-test
+spec:
+  type: pubsub.rabbitmq
+  version: v1
+  metadata:
+  - name: connectionString
+    value: "amqp://admin:password@rabbitmq:5672"
+  - name: durable
+    value: "false"
+  - name: deletedWhenUnused
+    value: "false"
+  - name: autoAck
+    value: "true"
+  - name: reconnectWait
+    value: "0"
+  - name: concurrency
+    value: parallel
+
+---
+
+# Dapr StateStore
+
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: statestore
+  namespace: dapr-test
+spec:
+  type: state.redis
+  version: v1
+  metadata:
+  - name: redisHost
+    value: redis:6379
+  - name: keyPrefix
+    value: none
+
+---
+
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: privatestatestore
+  namespace: dapr-test
+spec:
+  type: state.redis
+  version: v1
+  metadata:
+  - name: redisHost
+    value: redis:6379
+
+---
+
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: actorsstatestore
+  namespace: dapr-test
+spec:
+  type: state.redis
+  version: v1
+  metadata:
+  - name: redisHost
+    value: redis:6379
+  - name: actorStateStore 
+    value: "true"

@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MaksIT.Core" Version="1.1.6" />
+    <PackageReference Include="MaksIT.Core" Version="1.2.8" />
     <PackageReference Include="MaksIT.Dapr" Version="1.0.4" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
   </ItemGroup>
