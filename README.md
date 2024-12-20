@@ -1,6 +1,6 @@
 # Dapr with ASP.NET Core in Docker Compose and Kubernetes deployment test
 
-The aim of this project is to provide a simple reference on how to perform local development ana then deploy a C# Dapr powered microservices application in Kubernetes. This project demonstrates the deployment of a sample application using RabbitMQ for messaging and Redis for state management, leveraging Dapr to simplify the development of distributed applications.
+The aim of this project is to provide a simple reference on how to perform local development and deploy a C# Dapr-powered microservices application in Kubernetes. This project demonstrates the deployment of a sample application using RabbitMQ for messaging and Redis for state management, leveraging Dapr to simplify the development of distributed applications.
 
 ## Project Structure
 

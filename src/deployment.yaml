@@ -114,7 +114,7 @@ spec:
     spec:
       containers:
         - name: publisher
-          image: cr.maks-it.com/dapr-test/subscriber:latest
+          image: cr.maks-it.com/dapr-test/publisher:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 5000  # Match your internal app port
