@@ -1,7 +1,7 @@
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
-  name: statestore
+  name: dapr-test-statestore
   namespace: dapr-test
 spec:
   type: state.redis
@@ -17,7 +17,7 @@ spec:
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
-  name: privatestatestore
+  name: dapr-test-privatestatestore
   namespace: dapr-test
 spec:
   type: state.redis
@@ -31,7 +31,7 @@ spec:
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
-  name: actorsstatestore
+  name: dapr-test-actorsstatestore
   namespace: dapr-test
 spec:
   type: state.redis

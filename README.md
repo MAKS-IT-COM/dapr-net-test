@@ -149,19 +149,20 @@ spec:
         app: publisher
       annotations:
         dapr.io/enabled: "true"
-        dapr.io/app-id: "publisher"
+        dapr.io/app-id: "dapr-test-publisher"
         dapr.io/app-port: "5000"  # Adjust to your service port
     spec:
       containers:
         - name: publisher
-          image: cr.maks-it.com/dapr-test/subscriber:latest
+          image: cr.maks-it.com/dapr-test/publisher:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 5000  # Match your internal app port
           env:
+            - name: ASPNETCORE_HTTP_PORTS
+              value: "5000"
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
-            - name: ASPNETCORE_HTTP_PORTS
-              value: 5000
 
 ---
 
@@ -198,19 +199,20 @@ spec:
         app: subscriber
       annotations:
         dapr.io/enabled: "true"
-        dapr.io/app-id: "subscriber"
+        dapr.io/app-id: "dapr-test-subscriber"
         dapr.io/app-port: "5000"  # Adjust to match the subscriber service port
     spec:
       containers:
         - name: subscriber
           image: cr.maks-it.com/dapr-test/subscriber:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 5000  # Match the internal port of the subscriber service
           env:
+            - name: ASPNETCORE_HTTP_PORTS
+              value: "5000"
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
-            - name: ASPNETCORE_HTTP_PORTS
-              value: 5000
 
 ---
 
@@ -219,7 +221,7 @@ spec:
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
-  name: pubsub
+  name: dapr-test-pubsub
   namespace: dapr-test
 spec:
   type: pubsub.rabbitmq
@@ -245,7 +247,7 @@ spec:
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
-  name: statestore
+  name: dapr-test-statestore
   namespace: dapr-test
 spec:
   type: state.redis
@@ -261,7 +263,7 @@ spec:
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
-  name: privatestatestore
+  name: dapr-test-privatestatestore
   namespace: dapr-test
 spec:
   type: state.redis
@@ -275,7 +277,7 @@ spec:
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
-  name: actorsstatestore
+  name: dapr-test-actorsstatestore
   namespace: dapr-test
 spec:
   type: state.redis
